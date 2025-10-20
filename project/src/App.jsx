@@ -8,12 +8,14 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import History from "./pages/History";
+import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
+    
       <main className="container mx-auto p-4">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -30,9 +32,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
       </main>
+      <Footer />
     </BrowserRouter>
   );
 }

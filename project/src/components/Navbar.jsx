@@ -35,7 +35,11 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <Link to="/login" className="flex items-center gap-1"><FiUser /> Login</Link>
+            <button className="flex items-center gap-1.5">
+                <Link to="/login" className="flex items-center gap-1.5">
+                <FiUser /> Login
+              </Link>
+            </button>
           )}
         </div>
       </div>
