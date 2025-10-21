@@ -1,47 +1,53 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import api from "../api/axios";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
+  // Load saved user from localStorage
   useEffect(() => {
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-    else localStorage.removeItem("user");
-  }, [user]);
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) setUser(storedUser);
+  }, []);
 
-  useEffect(() => {
-    if (token) localStorage.setItem("token", token);
-    else localStorage.removeItem("token");
-  }, [token]);
-
+  // Signup: save user credentials
   const signup = async ({ name, email, password }) => {
-    setLoading(true);
-    const res = await api.post("/auth/signup", { name, email, password });
-    setLoading(false);
-    return res.data;
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    // check if email already exists
+    if (users.find((u) => u.email === email)) {
+      throw new Error("User already exists. Please login.");
+    }
+
+    const newUser = { name, email, password };
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
   };
 
+  // Login: verify credentials
   const login = async ({ email, password }) => {
-    setLoading(true);
-    const res = await api.post("/auth/login", { email, password });
-    const { token: t, user: u } = res.data;
-    setToken(t);
-    setUser(u);
-    setLoading(false);
-    return res.data;
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const existing = users.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (!existing) {
+      throw new Error("User doesn't exist. Please sign up first.");
+    }
+
+    localStorage.setItem("user", JSON.stringify(existing));
+    setUser(existing);
   };
 
   const logout = () => {
-    setToken(null);
+    localStorage.removeItem("user");
     setUser(null);
+    alert("Logout successfully ✅");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

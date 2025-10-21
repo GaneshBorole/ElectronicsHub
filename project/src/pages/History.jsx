@@ -1,41 +1,40 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/axios";
 
 export default function History() {
-  const [orders, setOrders] = useState([]);
+  const [viewed, setViewed] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/orders/my"); // endpoint implemented in server below
-        setOrders(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    })();
+    const stored = JSON.parse(localStorage.getItem("viewed") || "[]");
+    setViewed(stored);
   }, []);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Order History</h2>
-      {orders.length === 0 ? <div>No orders yet.</div> : (
-        <div className="space-y-4">
-          {orders.map((o) => (
-            <div key={o._id} className="bg-white p-4 rounded">
-              <div className="font-semibold">Order #{o._id}</div>
-              <div>Date: {new Date(o.createdAt).toLocaleString()}</div>
-              <div>Total: ₹{o.total}</div>
-              <div className="mt-2">
-                {o.items.map((it) => (
-                  <div key={it._id} className="flex gap-3 items-center my-2">
-                    <img src={it.image || "https://via.placeholder.com/80"} alt={it.title} className="w-16 h-16 object-cover" />
-                    <div>
-                      <div>{it.title}</div>
-                      <div>Qty: {it.qty} — ₹{it.price}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+    <div className="max-w-6xl mx-auto py-12 px-6">
+      <h1 className="text-3xl font-bold text-center mb-8 text-indigo-700">
+        👀 Recently Viewed Products
+      </h1>
+
+      {viewed.length === 0 ? (
+        <p className="text-center text-gray-600">
+          You haven't viewed any products yet.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {viewed.map((p, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl shadow hover:shadow-xl p-4 transition"
+            >
+              <img
+                src={p.image}
+                alt={p.title}
+                className="w-full h-52 object-cover rounded mb-3"
+              />
+              <h2 className="font-semibold text-lg">{p.title}</h2>
+              <p className="text-gray-700 mb-2">₹{p.price}</p>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                View Again
+              </button>
             </div>
           ))}
         </div>
